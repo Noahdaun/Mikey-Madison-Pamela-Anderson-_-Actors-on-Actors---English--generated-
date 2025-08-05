@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Eat Pray Love  - 자막 플레이어</title>
+  <style>
+    body { margin:0; font-family:sans-serif; background:#f5f8fa; color:#232340; }
+    .container {
+      max-width: 440px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      transition: all .2s;
+      min-height: 100vh;
+      background: #f5f8fa;
+    }
+    .container.horizontal {
+      max-width: 100vw;
+      margin: 0;
+      flex-direction: row;
+      min-height: 100vh;
+      height: 100vh;
+      background: #f5f8fa;
+    }
+    .left-panel {
+  width: 40%;
+  min-width: 320px;
+  background: #f5f8fa;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100vh;
+  z-index: 100;
+}
+
+    .right-panel {
+      width: 60%;
+      background: #f9fafb;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: stretch;
+      border-left: 2px solid #dbeafe;
+      min-height: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 0;
+    }
+    #fixed-top-group, #fixed-top-group-vert {
+      width: 100%;
+      background: #f5f8fa;
+      box-shadow: 0 4px 16px #d5dae533;
+      border-radius: 0 0 18px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      padding-bottom: 12px;
+    }
+    #player, #player-vert {
+      width: 100%;
+      aspect-ratio: 16/9;
+      border: none;
+      border-radius: 18px 18px 0 0;
+      background: #000;
+      box-shadow: 0 2px 10px #cdd4e7;
+      display: block;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    #fixed-controls, #fixed-controls-vert {
+      width: 100%;
+      background: #f5f8fa;
+      border-radius: 0 0 18px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      padding-bottom: 4px;
+    }
+    #progress, #progress-vert {
+      margin:12px 18px 8px 18px;
+      font-size:17px;
+      font-weight:500;
+      text-align:right;
+    }
+    #controls, #controls-vert {
+      display:flex;
+      gap:10px;
+      margin:0 18px 10px 18px;
+      align-items:center;
+      justify-content:center;
+    }
+    #controls button, #controls-vert button {
+      font-size:15px; padding:7px 14px; border-radius:10px; border:none;
+      background:#dbeafe; color:#232340; cursor:pointer;
+      transition: .13s;
+      white-space: nowrap;
+    }
+    #controls button.active, #controls-vert button.active { background:#232340; color:#fff; }
+    #mode-btn, #layout-btn, #mode-btn-vert, #layout-btn-vert {
+      font-size:14px; padding:6px 12px; border-radius:9px; border:none;
+      background:#fed7aa; color:#c2410c; cursor:pointer; margin-left:8px;
+      white-space: nowrap;
+    }
+    #mode-btn.active, #layout-btn.active, #mode-btn-vert.active, #layout-btn-vert.active { background:#c2410c; color:#fff;}
+    #subs-vert {
+      display:flex; flex-direction:column; gap:12px;
+      padding:0 0 24px 0;
+      width: 100%;
+      align-items: center;
+      flex: 1;
+      overflow-y: auto;
+      max-height: calc(100vh - 330px);
+      min-height: 0;
+    }
+    #subs {
+      display:flex; flex-direction:column; gap:12px;
+      padding:0 0 24px 0;
+      width: 100%;
+      align-items: stretch;
+    }
+    .sub-row {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      max-width: 100vw;
+      min-width: 0;
+      gap: 10px;
+      box-sizing: border-box;
+      margin: 0 auto;
+      transition: outline 0.15s, box-shadow 0.15s;
+    }
+    .sub-row.active {
+      outline: 3px solid #3b82f6 !important;
+      border-radius: 16px;
+      box-shadow: 0 0 0 2px #93c5fd66;
+      z-index: 1;
+    }
+    .sub-btn {
+      flex: 1 1 0%;
+      min-width: 0;
+      max-width: 100%;
+      font-size: 18px;
+      padding: 16px;
+      border-radius: 14px;
+      border: none;
+      background: #e0e7ff;
+      color: #232340;
+      text-align: left;
+      transition: .13s;
+      white-space: normal;
+      line-height: 1.3;
+      word-break: break-word;
+      overflow-wrap: break-word;
+      box-sizing: border-box;
+    }
+    .hide-btn, .check-btn {
+      flex-shrink: 0;
+      min-width: 44px;
+      max-width: 44px;
+      height: 44px;
+      font-size: 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+    }
+    .container.horizontal .sub-btn {
+      font-size: 30px;
+      padding: 18px 32px;
+    }
+    .container.horizontal .hide-btn,
+    .container.horizontal .check-btn {
+      font-size: 30px;
+      min-width: 52px;
+      max-width: 52px;
+      height: 52px;
+    }
+    .sub-btn:active { background:#a5b4fc; }
+    .sub-btn.learned { background:#a7f3d0; color:#157348; text-decoration:line-through; }
+    .hide-btn.active { color:#3b3b3b; }
+    .check-btn.checked { color:#22c55e; }
+    #vertical-root {
+      width: 100%;
+      max-width: 440px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #f5f8fa;
+      height: 100vh;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+    #fixed-top-group-vert {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: #f5f8fa;
+    }
+    @media (max-width: 900px) {
+      .container.horizontal .left-panel, .container.horizontal .right-panel { width: 100%; min-width:0;}
+      .container.horizontal { flex-direction: column; }
+    }
+    @media (max-width: 520px) {
+      .container, .container.horizontal { flex-direction: column !important; max-width: 100vw !important; }
+      .left-panel, .right-panel { width: 100% !important; min-width:0;}
+      #fixed-top-group, #fixed-top-group-vert { border-radius:0 0 14px 14px; }
+      #player, #player-vert { border-radius:0;}
+      #fixed-controls, #fixed-controls-vert { border-radius:0 0 14px 14px;}
+      .sub-btn { font-size:15px; padding:12px;}
+      #progress, #progress-vert { font-size:14px;}
+      #vertical-root { max-width: 100vw; }
+      .sub-row { max-width: 100vw; }
+      .sub-btn { max-width: 98vw; }
+      .container.horizontal .sub-btn { font-size: 18px; }
+      .container.horizontal .hide-btn, .container.horizontal .check-btn { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container" id="container">
+  <!-- 가로모드(좌우) 패널 -->
+  <div class="left-panel" id="left-panel" style="display:none">
+    <div id="fixed-top-group">
+      <iframe id="player" src="https://www.youtube.com/embed/IyqLT-85uuM?enablejsapi=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      <div id="fixed-controls">
+        <div id="progress"></div>
+        <div id="controls">
+          <button id="show-all" class="active">전체 보기</button>
+          <button id="show-learned">외웠음 보기</button>
+          <button id="mode-btn" class="active">한줄 재생</button>
+          <button id="layout-btn" title="세로모드로 전환">세로모드</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="right-panel" id="right-panel" style="display:none">
+    <div id="subs"></div>
+  </div>
+  <!-- 세로모드 패널 -->
+  <div id="vertical-root">
+    <div id="fixed-top-group-vert">
+      <iframe id="player" src="https://www.youtube.com/embed/IyqLT-85uuM?enablejsapi=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      <div id="fixed-controls-vert">
+        <div id="progress-vert"></div>
+        <div id="controls-vert">
+          <button id="show-all-vert" class="active">전체 보기</button>
+          <button id="show-learned-vert">외웠음 보기</button>
+          <button id="mode-btn-vert" class="active">한줄 재생</button>
+          <button id="layout-btn-vert" title="가로모드로 전환">가로모드</button>
+        </div>
+      </div>
+    </div>
+    <div id="subs-vert"></div>
+  </div>
+</div>
+<script>
+const SUBS = [
+  {
+    "start": 33.099,
+    "end": 35.13,
+    "text": "I can't wait to like get into that."
+  },
+  {
+    "start": 35.13,
+    "end": 36.66,
+    "text": "But how do you feel right now?"
+  },
+  {
+    "start": 36.66,
+    "end": 38.04,
+    "text": "I feel a little nervous actually,"
+  },
+  {
+    "start": 38.04,
+    "end": 39.9,
+    "text": "right when they called action."
+  },
+  {
+    "start": 39.9,
+    "end": 40.733,
+    "text": "- I know, me too."
+  },
+  {
+    "start": 40.733,
+    "end": 42.51,
+    "text": "I know, because  how do you start a conversation"
+  },
+  {
+    "start": 42.51,
+    "end": 44.66,
+    "text": "about all of this?"
+  },
+  {
+    "start": 44.692,
+    "end": 47.73,
+    "text": "I mean, you must be so excited your film is doing so well"
+  },
+  {
+    "start": 47.73,
+    "end": 50.04,
+    "text": "and all this attention,"
+  },
+  {
+    "start": 50.04,
+    "end": 53.43,
+    "text": "and I mean it's exciting but surreal, right?"
+  },
+  {
+    "start": 53.43,
+    "end": 56.58,
+    "text": "- I'm so lucky to be in a film like this"
+  },
+  {
+    "start": 56.58,
+    "end": 60.57,
+    "text": "and I've been dreaming like my entire career as an actress"
+  },
+  {
+    "start": 60.57,
+    "end": 63.72,
+    "text": "to be in the place that I am right now."
+  },
+  {
+    "start": 63.72,
+    "end": 65.343,
+    "text": "So I, it does feel..."
+  },
+  {
+    "start": 65.343,
+    "end": 66.84,
+    "text": "It feels surreal."
+  },
+  {
+    "start": 66.84,
+    "end": 69.63,
+    "text": "I don't know, some of it doesn't quite feel real at times."
+  },
+  {
+    "start": 69.63,
+    "end": 71.139,
+    "text": "- To me it's better that way."
+  },
+  {
+    "start": 71.139,
+    "end": 72.495,
+    "text": "When did you start acting?"
+  },
+  {
+    "start": 72.495,
+    "end": 77.283,
+    "text": "- I started acting  when I was about 15, 16."
+  },
+  {
+    "start": 77.283,
+    "end": 79.68,
+    "text": "We actually, it's sort of similar,"
+  },
+  {
+    "start": 79.68,
+    "end": 82.2,
+    "text": "we both got our starts in television."
+  },
+  {
+    "start": 82.2,
+    "end": 85.86,
+    "text": "When I was 15 I got a TV show called \"Better Things\""
+  },
+  {
+    "start": 85.86,
+    "end": 87.93,
+    "text": "that lasted for five seasons"
+  },
+  {
+    "start": 87.93,
+    "end": 89.37,
+    "text": "over the course of seven years."
+  },
+  {
+    "start": 89.37,
+    "end": 92.82,
+    "text": "And so that was my introduction into everything."
+  },
+  {
+    "start": 92.82,
+    "end": 96.54,
+    "text": "I really knew basically nothing about acting"
+  },
+  {
+    "start": 96.54,
+    "end": 100.56,
+    "text": "or what it was like to be on set, to play a character."
+  },
+  {
+    "start": 100.56,
+    "end": 103.41,
+    "text": "And so over the course of  those seven years,"
+  },
+  {
+    "start": 103.41,
+    "end": 108.0,
+    "text": "I really was able to just dip my feet into the water"
+  },
+  {
+    "start": 108.0,
+    "end": 110.629,
+    "text": "and cut my teeth on something-"
+  },
+  {
+    "start": 789.27,
+    "end": 792.652,
+    "text": "And do you know any Russian?"
+  },
+  {
+    "start": 792.652,
+    "end": 796.11,
+    "text": "- It's a very complicated language."
+  },
+  {
+    "start": 796.11,
+    "end": 799.05,
+    "text": "I didn't know any when I started the film."
+  },
+  {
+    "start": 799.05,
+    "end": 801.3,
+    "text": "I knew like a couple curse words,"
+  },
+  {
+    "start": 801.3,
+    "end": 802.8,
+    "text": "which I won't say"
+  },
+  {
+    "start": 802.8,
+    "end": 804.3,
+    "text": "'cause I know we're not allowed to cuss."
+  },
+  {
+    "start": 804.3,
+    "end": 806.82,
+    "text": "My grandmother,  it was one of the languages she spoke,"
+  },
+  {
+    "start": 806.82,
+    "end": 808.89,
+    "text": "but it wasn't passed on to my father."
+  },
+  {
+    "start": 808.89,
+    "end": 812.01,
+    "text": "And then I don't know any other languages."
+  },
+  {
+    "start": 812.01,
+    "end": 814.587,
+    "text": "So I was basically starting from scratch."
+  },
+  {
+    "start": 814.587,
+    "end": 817.62,
+    "text": "But you know, my character,"
+  },
+  {
+    "start": 817.62,
+    "end": 818.9,
+    "text": "she needed to speak Russian"
+  },
+  {
+    "start": 818.9,
+    "end": 820.71,
+    "text": "in a very specific way."
+  },
+  {
+    "start": 820.71,
+    "end": 823.05,
+    "text": "In the story her grandmother spoke Russian"
+  },
+  {
+    "start": 823.05,
+    "end": 824.73,
+    "text": "and she didn't speak English"
+  },
+  {
+    "start": 824.73,
+    "end": 827.519,
+    "text": "so that's how Ani knows that language."
+  },
+  {
+    "start": 827.519,
+    "end": 831.24,
+    "text": "And so her Russian is very much at the level"
+  },
+  {
+    "start": 831.24,
+    "end": 833.61,
+    "text": "of like maybe an elementary schooler"
+  },
+  {
+    "start": 833.61,
+    "end": 835.35,
+    "text": "or a middle schooler."
+  },
+  {
+    "start": 835.35,
+    "end": 837.9,
+    "text": "And I never wanted it to sound perfect,"
+  },
+  {
+    "start": 837.9,
+    "end": 842.43,
+    "text": "I always wanted there to be some Americanized version"
+  },
+  {
+    "start": 842.43,
+    "end": 845.61,
+    "text": "of the Russian in her vocality,"
+  },
+  {
+    "start": 845.61,
+    "end": 849.99,
+    "text": "because I didn't want her  to fit in in any specific way."
+  },
+  {
+    "start": 849.99,
+    "end": 852.496,
+    "text": "I think she's kind of always on the outside looking in,"
+  },
+  {
+    "start": 852.512,
+    "end": 856.08,
+    "text": "like even when she's trying to connect with Ivan"
+  },
+  {
+    "start": 856.091,
+    "end": 859.35,
+    "text": "and have some kind of deeper connection with him,"
+  },
+  {
+    "start": 859.35,
+    "end": 861.48,
+    "text": "she's really trying to speak Russian to him,"
+  },
+  {
+    "start": 861.48,
+    "end": 863.07,
+    "text": "but there's still something about it"
+  },
+  {
+    "start": 863.07,
+    "end": 864.96,
+    "text": "that's a little bit off."
+  },
+  {
+    "start": 897.81,
+    "end": 900.72,
+    "text": "I remember the first Russian session I did,"
+  },
+  {
+    "start": 900.72,
+    "end": 902.37,
+    "text": "it was like two hours long"
+  },
+  {
+    "start": 902.37,
+    "end": 906.18,
+    "text": "and like after an hour of trying to learn another language,"
+  },
+  {
+    "start": 906.18,
+    "end": 907.169,
+    "text": "like I just go,"
+  },
+  {
+    "start": 907.169,
+    "end": 909.96,
+    "text": "my brain is mush basically. - Yeah."
+  },
+  {
+    "start": 920.34,
+    "end": 924.45,
+    "text": "I really have to just dedicate all my time to learning that."
+  },
+  {
+    "start": 924.45,
+    "end": 926.37,
+    "text": "So I would like fall to sleep"
+  },
+  {
+    "start": 926.37,
+    "end": 930.87,
+    "text": "listening to like 10 hours of Russian speaking on YouTube"
+  },
+  {
+    "start": 930.87,
+    "end": 934.983,
+    "text": "and cramming as much Duolingo as possible."
+  },
+  {
+    "start": 936.21,
+    "end": 937.98,
+    "text": "But I mean, at this point I think"
+  },
+  {
+    "start": 937.98,
+    "end": 940.02,
+    "text": "most of the Russian is pretty much gone."
+  },
+  {
+    "start": 940.02,
+    "end": 941.31,
+    "text": "- But you know, when you learn a language,"
+  },
+  {
+    "start": 941.31,
+    "end": 943.1,
+    "text": "I lived in France for a while and I-"
+  },
+  {
+    "start": 943.1,
+    "end": 943.867,
+    "text": "Oh really?"
+  },
+  {
+    "start": 943.878,
+    "end": 945.311,
+    "text": "But I was always afraid to speak it."
+  },
+  {
+    "start": 945.322,
+    "end": 947.08,
+    "text": "So even if you learn the language-"
+  },
+  {
+    "start": 947.08,
+    "end": 947.401,
+    "text": "- Yeah."
+  },
+  {
+    "start": 947.412,
+    "end": 949.86,
+    "text": "- And you learn like the grammar  and you learn how to write it,"
+  },
+  {
+    "start": 949.86,
+    "end": 950.79,
+    "text": "or you learn how to read it,"
+  },
+  {
+    "start": 950.79,
+    "end": 952.612,
+    "text": "or you can understand a conversation,"
+  },
+  {
+    "start": 952.612,
+    "end": 954.63,
+    "text": "you're still shy to speak it."
+  },
+  {
+    "start": 954.63,
+    "end": 956.306,
+    "text": "So I feel that really came across,"
+  },
+  {
+    "start": 956.317,
+    "end": 957.63,
+    "text": "like all those little details"
+  },
+  {
+    "start": 957.63,
+    "end": 958.77,
+    "text": "I think were really interesting."
+  }
+];
+
+
+const STORAGE_KEY = 'subStatus_asianfood_yt';
+let status = {};
+let mode = 'vertical'; // vertical | horizontal
+let playingSubIdx = null;
+let pausedSubIdx = null;
+let paused = false;
+let playMode = 'single';
+let timeoutId, player, playerVert, currentView = 'all';
+
+// 추가: 마지막 클릭 자막 index
+let selectedSubIdx = null;
+
+function loadStatus() {
+  try {
+    status = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    for (let i=0; i<SUBS.length; i++) {
+      if (!status[i]) status[i]={hide:false,learned:false};
+    }
+  } catch { status = {}; }
+}
+function saveStatus() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(status));
+}
+
+function renderSubs(view='all', mode='vertical') {
+  const subsDiv = (mode==='vertical') ? document.getElementById('subs-vert') : document.getElementById('subs');
+  subsDiv.innerHTML = '';
+  let learned = 0;
+  SUBS.forEach((sub, idx) => {
+    if (view==='learned' && !status[idx].learned) return;
+    if (status[idx].learned) learned++;
+    const row = document.createElement('div');
+    row.className = 'sub-row';
+    if (idx === selectedSubIdx) row.className += ' active';
+    const btn = document.createElement('button');
+    btn.className = 'sub-btn' + (status[idx].learned ? ' learned':'');
+    btn.innerText = status[idx].hide ? '🙈' : sub.text;
+    btn.onclick = () => playPauseOrRestartSub(idx, mode);
+    const hideBtn = document.createElement('button');
+    hideBtn.className = 'hide-btn' + (status[idx].hide ? ' active' : '');
+    hideBtn.innerText = '🙈';
+    hideBtn.title = status[idx].hide ? '자막 보이기' : '자막 숨기기';
+    hideBtn.onclick = (e) => {
+      status[idx].hide = !status[idx].hide;
+      saveStatus(); renderSubs(currentView, mode);
+      e.stopPropagation();
+    };
+    const checkBtn = document.createElement('button');
+    checkBtn.className = 'check-btn' + (status[idx].learned ? ' checked':'');
+    checkBtn.innerText = '✔️';
+    checkBtn.title = status[idx].learned ? '외웠음 해제' : '외웠음';
+    checkBtn.onclick = (e) => {
+      status[idx].learned = !status[idx].learned;
+      saveStatus(); renderSubs(currentView, mode);
+      e.stopPropagation();
+    };
+    row.appendChild(btn);
+    row.appendChild(hideBtn);
+    row.appendChild(checkBtn);
+    subsDiv.appendChild(row);
+  });
+  let percent = SUBS.length ? Math.round(learned/SUBS.length*100) : 0;
+  const prog = (mode==='vertical') ? document.getElementById('progress-vert') : document.getElementById('progress');
+  if (prog) prog.innerHTML =
+    `진행률: <b>${percent}%</b> (${learned}/${SUBS.length})`;
+}
+
+function onYouTubeIframeAPIReady() {
+  player = new YT.Player('player');
+  playerVert = new YT.Player('player-vert');
+}
+window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
+
+// 클릭한 자막 줄만 테두리 남기고, 재생이 끝나도 유지
+function playPauseOrRestartSub(idx, mode='vertical') {
+  selectedSubIdx = idx;
+  renderSubs(currentView, mode);
+  const curPlayer = (mode === 'vertical') ? playerVert : player;
+  if (!curPlayer || !curPlayer.seekTo) return;
+  const state = curPlayer.getPlayerState();
+  if (playingSubIdx !== idx) {
+    playSubByMode(idx, mode);
+    playingSubIdx = idx;
+    pausedSubIdx = null;
+    paused = false;
+    return;
+  }
+  if (state === 1) {
+    curPlayer.pauseVideo();
+    if (timeoutId) clearTimeout(timeoutId);
+    paused = true;
+    pausedSubIdx = idx;
+    playingSubIdx = null;
+    return;
+  }
+  if (state === 2 && paused && pausedSubIdx === idx) {
+    playSubByMode(idx, mode);
+    playingSubIdx = idx;
+    paused = false;
+    pausedSubIdx = null;
+    return;
+  }
+  playSubByMode(idx, mode);
+  playingSubIdx = idx;
+  paused = false;
+  pausedSubIdx = null;
+}
+function playSubByMode(idx, mode='vertical') {
+  const curPlayer = (mode === 'vertical') ? playerVert : player;
+  let start = SUBS[idx].start;
+  let end;
+  if (playMode === 'single') {
+    end = SUBS[idx].end;
+  } else {
+    end = (SUBS[idx+1] ? SUBS[idx+1].end : SUBS[idx].end);
+  }
+  curPlayer.seekTo(start, true);
+  curPlayer.playVideo();
+  if (timeoutId) clearTimeout(timeoutId);
+  timeoutId = setTimeout(() => {
+    curPlayer.pauseVideo();
+    playingSubIdx = null;
+    paused = false;
+    pausedSubIdx = null;
+    // 재생 종료 시에도 selectedSubIdx는 그대로, outline 유지!
+  }, (end - start) * 1000);
+}
+function setLayout(newMode) {
+  mode = newMode;
+  const cont = document.getElementById('container');
+  if (mode === 'horizontal') {
+    cont.classList.add('horizontal');
+    document.getElementById('left-panel').style.display = '';
+    document.getElementById('right-panel').style.display = '';
+    document.getElementById('vertical-root').style.display = 'none';
+    renderSubs(currentView, 'horizontal');
+  } else {
+    cont.classList.remove('horizontal');
+    document.getElementById('left-panel').style.display = 'none';
+    document.getElementById('right-panel').style.display = 'none';
+    document.getElementById('vertical-root').style.display = '';
+    renderSubs(currentView, 'vertical');
+  }
+}
+function setHandlers() {
+  // 세로모드
+  document.getElementById('show-all-vert').onclick = function() {
+    currentView='all';
+    this.classList.add('active');
+    document.getElementById('show-learned-vert').classList.remove('active');
+    renderSubs('all', 'vertical');
+  };
+  document.getElementById('show-learned-vert').onclick = function() {
+    currentView='learned';
+    this.classList.add('active');
+    document.getElementById('show-all-vert').classList.remove('active');
+    renderSubs('learned', 'vertical');
+  };
+  document.getElementById('mode-btn-vert').onclick = function() {
+    if (playMode === 'single') {
+      playMode = 'next';
+      this.textContent = '다음줄까지 재생';
+      this.classList.add('active');
+    } else {
+      playMode = 'single';
+      this.textContent = '한줄 재생';
+      this.classList.remove('active');
+    }
+  };
+  document.getElementById('layout-btn-vert').onclick = function() {
+    setLayout('horizontal');
+  };
+  // 가로모드
+  document.getElementById('show-all').onclick = function() {
+    currentView='all';
+    this.classList.add('active');
+    document.getElementById('show-learned').classList.remove('active');
+    renderSubs('all', 'horizontal');
+  };
+  document.getElementById('show-learned').onclick = function() {
+    currentView='learned';
+    this.classList.add('active');
+    document.getElementById('show-all').classList.remove('active');
+    renderSubs('learned', 'horizontal');
+  };
+  document.getElementById('mode-btn').onclick = function() {
+    if (playMode === 'single') {
+      playMode = 'next';
+      this.textContent = '다음줄까지 재생';
+      this.classList.add('active');
+    } else {
+      playMode = 'single';
+      this.textContent = '한줄 재생';
+      this.classList.remove('active');
+    }
+  };
+  document.getElementById('layout-btn').onclick = function() {
+    setLayout('vertical');
+  };
+}
+window.onload = function() {
+  loadStatus();
+  setHandlers();
+  setLayout('vertical'); // 기본 세로모드
+  const tag = document.createElement('script');
+  tag.src = "https://www.youtube.com/iframe_api";
+  document.body.appendChild(tag);
+};
+</script>
+</body>
+</html>
